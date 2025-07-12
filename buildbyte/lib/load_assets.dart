@@ -63,5 +63,5 @@ class AssetLoader{
     );
   }
 
-  
+  // components
 }
