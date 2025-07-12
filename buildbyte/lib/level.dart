@@ -18,7 +18,7 @@ class Level extends World{
   Future<void> onLoad() async {
     await loadLevel(
       this,
-      'assets/levels/level1.json',
+      'assets/settings.json',
       game,
     );
 
@@ -41,20 +41,18 @@ class Level extends World{
     final invoice=Invoice();
     final invoiceComp=TextComponent(
     text: "RAM:${invoice.items['ram'].toString()}\nMotherboard:${invoice.items['motherboard'].toString()}\nGPU:${invoice.items['graphics_card']}",
-    position: Vector2(120, 20),
+    position: Vector2(120, 2),
     anchor: Anchor.topLeft,
     textRenderer: TextPaint(
       style: TextStyle(
-        color: Color(0xFFFFFFFF),
+        color: Color(0xFF000000),
         fontSize: 18,
         fontWeight: FontWeight.bold,
       ),
     ),
     priority: 100,
     );
-
     add(invoiceComp);
-
 
   }
 
@@ -110,10 +108,10 @@ class Level extends World{
     );
 
     // info panel
-    sprite=await _loadSprite(game,"panel_glass.png",Rect.fromLTWH(10, 10, 100, 100));
+    sprite=await _loadSprite(game,"panel_glass.png",Rect.fromLTWH(0, 0, 100, 100));
     world.add(SpriteComponent(
       sprite: sprite,
-      size: Vector2(100,100),
+      size: Vector2(600,100),
       anchor: Anchor.topLeft,
       position: Vector2.zero(),
       priority: 100,

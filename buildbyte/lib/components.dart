@@ -112,7 +112,6 @@ class Invoice{
     addItem('ram',2);
     addItem('graphics_card',1);
     addItem('motherboard',1);
-
   }
   void addItem(String name, int quantity) {
     if (items.containsKey(name)) {
