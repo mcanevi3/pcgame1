@@ -1,28 +1,55 @@
-import 'package:flame/game.dart';
+import 'package:buildbyte/level.dart';
+import 'package:buildbyte/menu.dart';
+import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flame/events.dart';
+import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
+  final game = ByteGame();
   runApp(
     GameWidget(
-      game: FlameGame(world: MyWorld()),
+      game: game,
+      overlayBuilderMap: {
+        'PauseMenu': (context, game) => PauseMenu(game as ByteGame),
+      },
     ),
   );
 }
 
-class MyWorld extends World {
+class ByteGame extends FlameGame with KeyboardEvents{
+  bool isPaused = false;
   @override
   Future<void> onLoad() async {
-    add(Player(position: Vector2(0, 0)));
+    super.onLoad();
+    camera.viewport = FixedResolutionViewport(resolution: Vector2(844, 390));
+    camera.moveTo(Vector2(844, 390) / 2);
+    overlays.add('PauseMenu');
   }
-}
 
-class Player extends SpriteComponent {
-  Player({super.position}) :
-    super(size: Vector2.all(200), anchor: Anchor.center);
+  void startGame() {
+    overlays.remove('PauseMenu');
+    world = Level();
+    debugPrint('Game Started!');
+    isPaused = false;
+  }
+
+  void stopGame() {
+    overlays.add('PauseMenu');
+    debugPrint('Game Stopped!');
+    world = World(); // empty world
+    isPaused = true;
+  }
+
 
   @override
-  Future<void> onLoad() async {
-    sprite = await Sprite.load('motherboard.jpeg');
+  KeyEventResult onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.escape) {
+      isPaused ? startGame() : stopGame();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 }
