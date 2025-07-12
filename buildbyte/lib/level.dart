@@ -37,6 +37,25 @@ class Level extends World{
     );
 
     add(pointsText);
+
+    final invoice=Invoice();
+    final invoiceComp=TextComponent(
+    text: "RAM:${invoice.items['ram'].toString()}\nMotherboard:${invoice.items['motherboard'].toString()}\nGPU:${invoice.items['graphics_card']}",
+    position: Vector2(120, 20),
+    anchor: Anchor.topLeft,
+    textRenderer: TextPaint(
+      style: TextStyle(
+        color: Color(0xFFFFFFFF),
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    priority: 100,
+    );
+
+    add(invoiceComp);
+
+
   }
 
    Future<void> loadLevel(
@@ -79,7 +98,6 @@ class Level extends World{
         priority: 10,
         snapZones: zoneObjects,
         onCase: () {
-          print("case");
           points+=10;
           pointsText.text = points.toString();
           
@@ -87,7 +105,6 @@ class Level extends World{
           points-=10;
           pointsText.text = points.toString();
         },onNothing: (){
-          print("nothing");
         }
       ),
     );
@@ -183,13 +200,9 @@ class Level extends World{
     // Background
     final bgInfo = data['background'];
     final bgSprite = await Sprite.load(bgInfo['image']);
-    final bgSize = Vector2(
-      bgInfo['size'][0].toDouble(),
-      bgInfo['size'][1].toDouble(),
-    );
     final background = SpriteComponent(
       sprite: bgSprite,
-      size: bgSize,
+      size: Vector2(ByteGame.width,ByteGame.height),
       anchor: Anchor.topLeft,
       position: Vector2.zero(),
       priority: -2,

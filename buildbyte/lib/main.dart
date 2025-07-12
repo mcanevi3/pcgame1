@@ -21,11 +21,13 @@ void main() {
 
 class ByteGame extends FlameGame with KeyboardEvents{
   bool isPaused = false;
+  static const double width=700;
+  static const double height=400;
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    camera.viewport = FixedResolutionViewport(resolution: Vector2(700, 390));
-    camera.moveTo(Vector2(700, 390) / 2);
+    camera.viewport = FixedResolutionViewport(resolution: Vector2(width, height));
+    camera.moveTo(Vector2(width, height) / 2);
     overlays.add('PauseMenu');
   }
 

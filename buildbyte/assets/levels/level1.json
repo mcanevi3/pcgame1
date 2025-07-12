@@ -1,7 +1,6 @@
 {
   "background": {
-    "image": "bg2.png",
-    "size": [700,390]
+    "image": "bg2.png"
   },
   "trash": {
     "image": "trash1.jpeg",

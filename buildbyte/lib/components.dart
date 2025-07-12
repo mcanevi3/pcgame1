@@ -103,3 +103,22 @@ class ImageSnapZone extends SnapZone {
     add(imageComponent);
   }
 }
+
+class Invoice{
+  late Map<String,int> items;
+
+  Invoice(){
+    items = {};
+    addItem('ram',2);
+    addItem('graphics_card',1);
+    addItem('motherboard',1);
+
+  }
+  void addItem(String name, int quantity) {
+    if (items.containsKey(name)) {
+      items[name] = items[name]! + quantity;
+    } else {
+      items[name] = quantity;
+    }
+  }
+}
