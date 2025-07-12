@@ -24,14 +24,14 @@ class ByteGame extends FlameGame with KeyboardEvents{
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    camera.viewport = FixedResolutionViewport(resolution: Vector2(844, 390));
-    camera.moveTo(Vector2(844, 390) / 2);
+    camera.viewport = FixedResolutionViewport(resolution: Vector2(700, 390));
+    camera.moveTo(Vector2(700, 390) / 2);
     overlays.add('PauseMenu');
   }
 
   void startGame() {
     overlays.remove('PauseMenu');
-    world = Level();
+    world = Level(game: this);
     debugPrint('Game Started!');
     isPaused = false;
   }
