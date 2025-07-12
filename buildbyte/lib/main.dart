@@ -1,5 +1,4 @@
 import 'package:buildbyte/level.dart';
-import 'package:buildbyte/load_assets.dart';
 import 'package:buildbyte/menu.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
@@ -34,11 +33,9 @@ class ByteGame extends FlameGame with KeyboardEvents{
 
   void startGame() async{
     overlays.remove('PauseMenu');
-
-    add(await AssetLoader.caseSpriteComponent(this));
-    // world = Level(game: this);
-    // debugPrint('Game Started!');
-    // isPaused = false;
+    world = Level(game: this);
+    debugPrint('Game Started!');
+    isPaused = false;
   }
 
   void stopGame() {

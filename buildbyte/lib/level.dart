@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:buildbyte/components.dart';
+import 'package:buildbyte/load_assets.dart';
 import 'package:buildbyte/main.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
@@ -18,41 +19,41 @@ class Level extends World{
   Future<void> onLoad() async {
     await loadLevel(
       this,
-      'assets/settings.json',
+      'assets/levels/level1.json',
       game,
     );
 
-    pointsText = TextComponent(
-    text: points.toString(),
-    position: Vector2(20, 20),
-    anchor: Anchor.topLeft,
-    textRenderer: TextPaint(
-      style: TextStyle(
-        color: Color(0xFF000000),
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    priority: 100,
-    );
+    // pointsText = TextComponent(
+    // text: points.toString(),
+    // position: Vector2(20, 20),
+    // anchor: Anchor.topLeft,
+    // textRenderer: TextPaint(
+    //   style: TextStyle(
+    //     color: Color(0xFF000000),
+    //     fontSize: 18,
+    //     fontWeight: FontWeight.bold,
+    //   ),
+    // ),
+    // priority: 100,
+    // );
 
-    add(pointsText);
+    // add(pointsText);
 
-    final invoice=Invoice();
-    final invoiceComp=TextComponent(
-    text: "RAM:${invoice.items['ram'].toString()}\nMotherboard:${invoice.items['motherboard'].toString()}\nGPU:${invoice.items['graphics_card']}",
-    position: Vector2(120, 2),
-    anchor: Anchor.topLeft,
-    textRenderer: TextPaint(
-      style: TextStyle(
-        color: Color(0xFF000000),
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    priority: 100,
-    );
-    add(invoiceComp);
+    // final invoice=Invoice();
+    // final invoiceComp=TextComponent(
+    // text: "RAM:${invoice.items['ram'].toString()}\nMotherboard:${invoice.items['motherboard'].toString()}\nGPU:${invoice.items['graphics_card']}",
+    // position: Vector2(120, 2),
+    // anchor: Anchor.topLeft,
+    // textRenderer: TextPaint(
+    //   style: TextStyle(
+    //     color: Color(0xFF000000),
+    //     fontSize: 18,
+    //     fontWeight: FontWeight.bold,
+    //   ),
+    // ),
+    // priority: 100,
+    // );
+    // add(invoiceComp);
 
   }
 
@@ -61,65 +62,66 @@ class Level extends World{
     String jsonPath,
     ByteGame game,
   ) async {
-    final jsonString = await rootBundle.loadString(jsonPath);
-    final data = json.decode(jsonString);
-    
+    AssetLoader.filePath=jsonPath;
     // Background
-    await _loadBackground(data, world);
+    await _loadBackground();
     // trash
-    await _loadTrash(data, game, world);
+    await _loadTrash();
     // case
-    await _loadCase(data, game, world);
+    await _loadCase();
     // SnapZones
-    _loadZones(data, world);
+    _loadZones();
 
     // A test ram
-    final comp=data['components'];
-    final ram=comp["ram"];
-    var sprite = await _loadSprite(
-        game,
-        ram['image'],
-        Rect.fromLTWH(
-          ram['src'][0].toDouble(),
-          ram['src'][1].toDouble(),
-          ram['src'][2].toDouble(),
-          ram['src'][3].toDouble(),
-        ),
-      );
-    final srcZone = zoneObjects[2];
+    SpriteComponent ram1=await AssetLoader.getSpriteComponent(game, "ram",Vector2(50,50),Vector2(0,0));
+    add(ram1);
+    // final comp=data['components'];
+    // final ram=comp["ram"];
+    // var sprite = await _loadSprite(
+    //     game,
+    //     ram['image'],
+    //     Rect.fromLTWH(
+    //       ram['src'][0].toDouble(),
+    //       ram['src'][1].toDouble(),
+    //       ram['src'][2].toDouble(),
+    //       ram['src'][3].toDouble(),
+    //     ),
+    //   );
+    // final srcZone = zoneObjects[2];
     
-    world.add(
-      DraggableComputerPart(
-        sprite: sprite,
-        size: srcZone.size,
-        position: srcZone.position,
-        priority: 10,
-        snapZones: zoneObjects,
-        onCase: () {
-          points+=10;
-          pointsText.text = points.toString();
+    // world.add(
+    //   DraggableComputerPart(
+    //     sprite: sprite,
+    //     size: srcZone.size,
+    //     position: srcZone.position,
+    //     priority: 10,
+    //     snapZones: zoneObjects,
+    //     onCase: () {
+    //       points+=10;
+    //       pointsText.text = points.toString();
           
-        },onTrash: () {
-          points-=10;
-          pointsText.text = points.toString();
-        },onNothing: (){
-        }
-      ),
-    );
+    //     },onTrash: () {
+    //       points-=10;
+    //       pointsText.text = points.toString();
+    //     },onNothing: (){
+    //     }
+    //   ),
+    // );
 
-    // info panel
-    sprite=await _loadSprite(game,"panel_glass.png",Rect.fromLTWH(0, 0, 100, 100));
-    world.add(SpriteComponent(
-      sprite: sprite,
-      size: Vector2(600,100),
-      anchor: Anchor.topLeft,
-      position: Vector2.zero(),
-      priority: 100,
-    ));
+    // // info panel
+    // sprite=await _loadSprite(game,"panel_glass.png",Rect.fromLTWH(0, 0, 100, 100));
+    // world.add(SpriteComponent(
+    //   sprite: sprite,
+    //   size: Vector2(600,100),
+    //   anchor: Anchor.topLeft,
+    //   position: Vector2.zero(),
+    //   priority: 100,
+    // ));
 
   }
 
-   void _loadZones(dynamic data, World world) {
+   void _loadZones() async{
+    dynamic data=await AssetLoader.loadJSON(AssetLoader.filePath!);
     final List snapZones = data['zones'];
     
     for (final zone in snapZones) {
@@ -132,20 +134,15 @@ class Level extends World{
         size: Vector2(zone['size'][0].toDouble(), zone['size'][1].toDouble()),
         color: color,
       );
-      world.add(sz);
+      add(sz);
       zoneObjects.add(sz);
     }
   }
 
-   Future<void> _loadCase(dynamic data, ByteGame game, World world) async {
-    // case
+   Future<void> _loadCase() async {
+    dynamic data=await AssetLoader.loadJSON(AssetLoader.filePath!);
     final caseInfo = data['case'];
-    final caseSprite = await _loadSprite(game,caseInfo['image'],Rect.fromLTWH(
-          caseInfo['src'][0].toDouble(),
-          caseInfo['src'][1].toDouble(),
-          caseInfo['src'][2].toDouble(),
-          caseInfo['src'][3].toDouble(),
-      ));
+    final caseSprite = await AssetLoader.caseSprite(game);
     final caseSize = Vector2(
        caseInfo['size'][0].toDouble(),
        caseInfo['size'][1].toDouble(),
@@ -161,20 +158,14 @@ class Level extends World{
       priority: 1,
       id:"case"
     );
-    world.add(caseComponent!);
+    add(caseComponent!);
     zoneObjects.add(caseComponent!);
   }
 
-   Future<void> _loadTrash(dynamic data, ByteGame game, World world) async {
-  
-    // trash
-    final tInfo = data['trash'];
-    final tSprite = await _loadSprite(game,tInfo['image'],Rect.fromLTWH(
-          tInfo['src'][0].toDouble(),
-          tInfo['src'][1].toDouble(),
-          tInfo['src'][2].toDouble(),
-          tInfo['src'][3].toDouble(),
-      ));
+   Future<void> _loadTrash() async {
+    dynamic data=await AssetLoader.loadJSON(AssetLoader.filePath!);
+    final tInfo = data["trash"];
+    final tSprite = await AssetLoader.trashSprite(game);
     final tSize = Vector2(
        tInfo['size'][0].toDouble(),
        tInfo['size'][1].toDouble(),
@@ -190,35 +181,21 @@ class Level extends World{
       priority: 1,
       id: 'trash',
     );
-    world.add(trash);
+    add(trash);
     zoneObjects.add(trash);
   }
 
-   Future<void> _loadBackground(dynamic data, World world) async {
-    // Background
-    final bgInfo = data['background'];
-    final bgSprite = await Sprite.load(bgInfo['image']);
+   Future<void> _loadBackground() async {
+    
     final background = SpriteComponent(
-      sprite: bgSprite,
+      sprite: await AssetLoader.backgroundSprite(game),
       size: Vector2(ByteGame.width,ByteGame.height),
       anchor: Anchor.topLeft,
       position: Vector2.zero(),
       priority: -2,
     );
-    world.add(background);
+    add(background);
   }
 
-   Future<Sprite> _loadSprite(
-    ByteGame game,
-    String path,
-    Rect region,
-  ) async {
-    final image = await game.images.load(path);
-    return Sprite(
-      image,
-      srcPosition: Vector2(region.left, region.top),
-      srcSize: Vector2(region.width, region.height),
-    );
-  }
 
 }
