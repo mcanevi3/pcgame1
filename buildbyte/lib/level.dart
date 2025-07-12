@@ -2,14 +2,16 @@ import 'dart:convert';
 import 'package:buildbyte/components.dart';
 import 'package:buildbyte/main.dart';
 import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Level extends World{
   final ByteGame game;
-  
   final List<SnapZone> zoneObjects = [];
-  ImageSnapZone? caseComponent;
 
+  late TextComponent pointsText;
+  int points=0;
+  
   Level({required this.game});
   
   @override
@@ -19,6 +21,22 @@ class Level extends World{
       'assets/levels/level1.json',
       game,
     );
+
+    pointsText = TextComponent(
+    text: points.toString(),
+    position: Vector2(20, 20),
+    anchor: Anchor.topLeft,
+    textRenderer: TextPaint(
+      style: TextStyle(
+        color: Color(0xFF000000),
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    priority: 100,
+    );
+
+    add(pointsText);
   }
 
    Future<void> loadLevel(
@@ -35,14 +53,13 @@ class Level extends World{
     await _loadTrash(data, game, world);
     // case
     await _loadCase(data, game, world);
-
     // SnapZones
     _loadZones(data, world);
 
     // A test ram
     final comp=data['components'];
     final ram=comp["ram"];
-    final sprite = await _loadSprite(
+    var sprite = await _loadSprite(
         game,
         ram['image'],
         Rect.fromLTWH(
@@ -52,8 +69,7 @@ class Level extends World{
           ram['src'][3].toDouble(),
         ),
       );
-    final targetZone = caseComponent!;
-    final srcZone = zoneObjects[0];
+    final srcZone = zoneObjects[2];
     
     world.add(
       DraggableComputerPart(
@@ -61,9 +77,31 @@ class Level extends World{
         size: srcZone.size,
         position: srcZone.position,
         priority: 10,
-        snapTarget: targetZone.position.clone(),
+        snapZones: zoneObjects,
+        onCase: () {
+          print("case");
+          points+=10;
+          pointsText.text = points.toString();
+          
+        },onTrash: () {
+          points-=10;
+          pointsText.text = points.toString();
+        },onNothing: (){
+          print("nothing");
+        }
       ),
     );
+
+    // info panel
+    sprite=await _loadSprite(game,"panel_glass.png",Rect.fromLTWH(10, 10, 100, 100));
+    world.add(SpriteComponent(
+      sprite: sprite,
+      size: Vector2(100,100),
+      anchor: Anchor.topLeft,
+      position: Vector2.zero(),
+      priority: 100,
+    ));
+
   }
 
    void _loadZones(dynamic data, World world) {
@@ -101,13 +139,15 @@ class Level extends World{
        caseInfo['position'][0].toDouble(),
        caseInfo['position'][1].toDouble(),
      );
-    caseComponent = ImageSnapZone(
+    ImageSnapZone caseComponent = ImageSnapZone(
       sprite: caseSprite,
       size: caseSize,
       position: casePos,
       priority: 1,
+      id:"case"
     );
     world.add(caseComponent!);
+    zoneObjects.add(caseComponent!);
   }
 
    Future<void> _loadTrash(dynamic data, ByteGame game, World world) async {
@@ -133,8 +173,10 @@ class Level extends World{
       size: tSize,
       position: tPos,
       priority: 1,
+      id: 'trash',
     );
     world.add(trash);
+    zoneObjects.add(trash);
   }
 
    Future<void> _loadBackground(dynamic data, World world) async {

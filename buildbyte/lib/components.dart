@@ -3,15 +3,20 @@ import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 
 class DraggableComputerPart extends SpriteComponent with DragCallbacks {
+  final List<SnapZone> snapZones;
+  final VoidCallback? onTrash;
+  final VoidCallback? onCase;
+  final VoidCallback? onNothing;
+
   late final Vector2 originalPosition;
-  final Vector2 snapTarget;
   late int oldPriority;
-  DraggableComputerPart({
+
+  DraggableComputerPart({this.onTrash, this.onCase,this.onNothing,
     required Sprite sprite,
     required Vector2 size,
     required Vector2 position,
     required int priority,
-    required this.snapTarget,
+    required this.snapZones,
   }) : super(
          sprite: sprite,
          size: size,
@@ -21,8 +26,6 @@ class DraggableComputerPart extends SpriteComponent with DragCallbacks {
     originalPosition = position.clone();
     oldPriority = priority;
   }
-
-  bool get isNearSnapTarget => (position - snapTarget).length < 30;
 
   @override
   void onDragUpdate(DragUpdateEvent event) {
@@ -34,17 +37,43 @@ class DraggableComputerPart extends SpriteComponent with DragCallbacks {
   @override
   void onDragEnd(DragEndEvent event) {
     super.onDragEnd(event);
-    position = isNearSnapTarget ? snapTarget.clone() : originalPosition.clone();
-    priority = oldPriority;
+    bool snapped=false;
+    for(final snapTarget in snapZones){
+      
+      if((position - snapTarget.position).length < 30)
+      {
+        position = snapTarget.position.clone();
+        priority = oldPriority;
+        snapped=true;
+
+        if(snapTarget.id=="trash")
+        {
+          onTrash!();
+        }else if(snapTarget.id=="case")
+        {
+          onCase!();
+        }else 
+        {
+          onNothing!();
+        }
+        break;
+      }
+    }
+    if(!snapped)
+    {
+      position=originalPosition.clone();
+    }
   }
 }
 
 class SnapZone extends RectangleComponent {
+  final String? id;
   SnapZone({
     required Vector2 position,
     required Vector2 size,
     Color color = const Color(0x55FFFFFF), // semi-transparent white
     int priority = 9,
+    this.id,
   }) : super(
          position: position,
          size: size,
@@ -62,6 +91,7 @@ class ImageSnapZone extends SnapZone {
     required super.size,
     super.color = const Color(0x55FFFFFF),
     super.priority = 9,
+    super.id,
   }) {
     imageComponent = SpriteComponent(
       sprite: sprite,
