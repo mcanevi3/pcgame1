@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:buildbyte/components.dart';
 import 'package:buildbyte/load_assets.dart';
 import 'package:buildbyte/main.dart';
@@ -73,43 +72,28 @@ class Level extends World{
     _loadZones();
 
     // A test ram
-    SpriteComponent ram1=await AssetLoader.getSpriteComponent(game, "ram",Vector2(50,50),Vector2(0,0));
-    add(ram1);
-    // final comp=data['components'];
-    // final ram=comp["ram"];
-    // var sprite = await _loadSprite(
-    //     game,
-    //     ram['image'],
-    //     Rect.fromLTWH(
-    //       ram['src'][0].toDouble(),
-    //       ram['src'][1].toDouble(),
-    //       ram['src'][2].toDouble(),
-    //       ram['src'][3].toDouble(),
-    //     ),
-    //   );
-    // final srcZone = zoneObjects[2];
-    
-    // world.add(
-    //   DraggableComputerPart(
-    //     sprite: sprite,
-    //     size: srcZone.size,
-    //     position: srcZone.position,
-    //     priority: 10,
-    //     snapZones: zoneObjects,
-    //     onCase: () {
-    //       points+=10;
-    //       pointsText.text = points.toString();
+    Sprite ram1=await AssetLoader.getSprite(game, "ram");
+    add(
+      DraggableComputerPart(
+        sprite: ram1,
+        size: Vector2(100,100),
+        position: Vector2(50, 50),
+        priority: 10,
+        snapZones: zoneObjects,
+        onCase: () {
+          points+=10;
+          pointsText.text = points.toString();
           
-    //     },onTrash: () {
-    //       points-=10;
-    //       pointsText.text = points.toString();
-    //     },onNothing: (){
-    //     }
-    //   ),
-    // );
+        },onTrash: () {
+          points-=10;
+          pointsText.text = points.toString();
+        },onNothing: (){
+        }
+      ),
+    );
 
     // // info panel
-    // sprite=await _loadSprite(game,"panel_glass.png",Rect.fromLTWH(0, 0, 100, 100));
+    // var sprite=await _loadSprite(game,"panel_glass.png",Rect.fromLTWH(0, 0, 100, 100));
     // world.add(SpriteComponent(
     //   sprite: sprite,
     //   size: Vector2(600,100),
@@ -158,8 +142,8 @@ class Level extends World{
       priority: 1,
       id:"case"
     );
-    add(caseComponent!);
-    zoneObjects.add(caseComponent!);
+    add(caseComponent);
+    zoneObjects.add(caseComponent);
   }
 
    Future<void> _loadTrash() async {
